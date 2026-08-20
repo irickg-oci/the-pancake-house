@@ -113,6 +113,7 @@
       }
 
       .square:not(:disabled):focus-visible,
+      .dopamine-scale input:focus-visible,
       .restart:focus-visible {
         outline: 3px solid #d17a56;
         outline-offset: 3px;
@@ -139,9 +140,53 @@
         cursor: default;
       }
 
+      .dopamine-control {
+        margin-top: 1.25rem;
+        padding: 0.9rem 1rem;
+        border-radius: 16px;
+        background: #f8f4ed;
+      }
+
+      .dopamine-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .dopamine-header label {
+        font-weight: 800;
+      }
+
+      .dopamine-header output {
+        color: #736960;
+        font-size: 0.8rem;
+      }
+
+      .dopamine-scale {
+        display: grid;
+        grid-template-columns: 1.75rem 1fr 1.75rem;
+        align-items: center;
+        gap: 0.65rem;
+        margin-top: 0.55rem;
+      }
+
+      .dopamine-scale input {
+        width: 100%;
+        margin: 0;
+        cursor: pointer;
+        accent-color: #d17a56;
+      }
+
+      .dopamine-face {
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+
       .restart {
         width: 100%;
-        margin-top: 1.25rem;
+        margin-top: 1rem;
         padding: 0.85rem 1rem;
         border: 0;
         border-radius: 999px;

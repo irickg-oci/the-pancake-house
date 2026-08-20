@@ -6,6 +6,7 @@ const COMPUTER = "O";
 const MIN_VIEWPORT_WIDTH = 400;
 const MIN_VIEWPORT_HEIGHT = 300;
 const VIEWPORT_GUTTER = 32;
+const MISTAKE_CHANCE_PER_LEVEL = 0.2;
 const WINNING_LINES = [
   [0, 1, 2],
   [3, 4, 5],
@@ -55,9 +56,8 @@ function scorePosition(board, isComputerTurn, depth) {
   return isComputerTurn ? Math.max(...scores) : Math.min(...scores);
 }
 
-function findBestMove(board) {
-  let bestScore = -Infinity;
-  let bestMove = -1;
+function findBestMove(board, mistakeChance = 0, random = Math.random) {
+  const moves = [];
 
   board.forEach((square, index) => {
     if (square) return;
@@ -65,19 +65,29 @@ function findBestMove(board) {
     const nextBoard = [...board];
     nextBoard[index] = COMPUTER;
     const score = scorePosition(nextBoard, false, 0);
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestMove = index;
-    }
+    moves.push({ index, score });
   });
 
-  return bestMove;
+  if (moves.length === 0) return -1;
+
+  const bestScore = Math.max(...moves.map((move) => move.score));
+  const mistakes = moves.filter((move) => move.score < bestScore);
+
+  if (
+    mistakeChance > 0 &&
+    mistakes.length > 0 &&
+    random() < mistakeChance
+  ) {
+    return mistakes[Math.floor(random() * mistakes.length)].index;
+  }
+
+  return moves.find((move) => move.score === bestScore).index;
 }
 
 function Game() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [turn, setTurn] = useState(PLAYER);
+  const [dopamine, setDopamine] = useState(0);
   const [layout, setLayout] = useState({ height: 672, scale: 1, width: 440 });
   const gameRef = useRef(null);
   const result = getResult(board);
@@ -122,7 +132,10 @@ function Game() {
     if (turn !== COMPUTER || result.winner) return undefined;
 
     const timer = window.setTimeout(() => {
-      const move = findBestMove(board);
+      const move = findBestMove(
+        board,
+        dopamine * MISTAKE_CHANCE_PER_LEVEL,
+      );
 
       if (move !== -1) {
         setBoard((currentBoard) => {
@@ -135,7 +148,7 @@ function Game() {
     }, 350);
 
     return () => window.clearTimeout(timer);
-  }, [board, result.winner, turn]);
+  }, [board, dopamine, result.winner, turn]);
 
   function playSquare(index) {
     if (turn !== PLAYER || board[index] || result.winner) return;
@@ -225,6 +238,48 @@ function Game() {
         "div",
         { "aria-label": "Pancake Wars board", className: "board" },
         squares,
+      ),
+      h(
+        "div",
+        { className: "dopamine-control" },
+        h(
+          "div",
+          { className: "dopamine-header" },
+          h("label", { htmlFor: "dopamine" }, "Dopamine"),
+          h(
+            "output",
+            { htmlFor: "dopamine", id: "dopamine-value" },
+            `${dopamine} · ${dopamine * 20}% mistakes`,
+          ),
+        ),
+        h(
+          "div",
+          { className: "dopamine-scale" },
+          h(
+            "span",
+            { "aria-label": "Level 0: no mistakes", className: "dopamine-face" },
+            "☹️",
+          ),
+          h("input", {
+            "aria-describedby": "dopamine-value",
+            "aria-valuetext": `Level ${dopamine}, ${dopamine * 20}% mistake chance`,
+            id: "dopamine",
+            max: 5,
+            min: 0,
+            onChange: (event) => setDopamine(Number(event.target.value)),
+            step: 1,
+            type: "range",
+            value: dopamine,
+          }),
+          h(
+            "span",
+            {
+              "aria-label": "Level 5: always makes a mistake when possible",
+              className: "dopamine-face",
+            },
+            "😁",
+          ),
+        ),
       ),
       h(
         "button",
