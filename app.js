@@ -214,7 +214,7 @@ function Game() {
       "section",
       { className: "game", ref: gameRef },
       h("p", { className: "eyebrow" }, "You vs. computer"),
-      h("h1", null, "Tic Tac Toe"),
+      h("h1", null, "Pancake Wars"),
       h(
         "p",
         { className: "legend" },
@@ -223,7 +223,7 @@ function Game() {
       h("p", { "aria-live": "polite", className: "status" }, status),
       h(
         "div",
-        { "aria-label": "Tic Tac Toe board", className: "board" },
+        { "aria-label": "Pancake Wars board", className: "board" },
         squares,
       ),
       h(
