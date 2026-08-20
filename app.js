@@ -161,22 +161,42 @@ function Game() {
   const squares = board.map((mark, index) => {
     const classes = ["square"];
 
-    if (mark === COMPUTER) classes.push("o");
     if (result.line.includes(index)) classes.push("winner");
+
+    let label = `Square ${index + 1}: empty`;
+    let piece = null;
+
+    if (mark === PLAYER) {
+      label = `Square ${index + 1}: your blueberry pancakes`;
+      piece = h("img", {
+        alt: "",
+        className: "piece",
+        draggable: false,
+        src: "assets/blueberry-pancakes.png",
+      });
+    }
+
+    if (mark === COMPUTER) {
+      label = `Square ${index + 1}: computer's butter pancakes`;
+      piece = h("img", {
+        alt: "",
+        className: "piece",
+        draggable: false,
+        src: "assets/butter-pancakes.png",
+      });
+    }
 
     return h(
       "button",
       {
-        "aria-label": mark
-          ? `Square ${index + 1}: ${mark}`
-          : `Square ${index + 1}: empty`,
+        "aria-label": label,
         className: classes.join(" "),
         disabled: Boolean(mark) || turn !== PLAYER || Boolean(result.winner),
         key: index,
         onClick: () => playSquare(index),
         type: "button",
       },
-      mark,
+      piece,
     );
   });
 
@@ -195,7 +215,11 @@ function Game() {
       { className: "game", ref: gameRef },
       h("p", { className: "eyebrow" }, "You vs. computer"),
       h("h1", null, "Tic Tac Toe"),
-      h("p", { className: "legend" }, "You are X. The computer is O."),
+      h(
+        "p",
+        { className: "legend" },
+        "You have blueberries. The computer has extra butter.",
+      ),
       h("p", { "aria-live": "polite", className: "status" }, status),
       h(
         "div",
