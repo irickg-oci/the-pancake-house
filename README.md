@@ -1,0 +1,2 @@
+# the-pancake-house
+A place to test stacked PRs without fear of breaking anything.
