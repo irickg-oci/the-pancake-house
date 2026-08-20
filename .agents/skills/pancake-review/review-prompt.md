@@ -27,7 +27,7 @@ Review these changes. **How to review** below sets the approach; sections 1–3 
 - Anchor every finding to a `path:line` using the **full repo-relative path** from the
   repo root, never a bare basename — this project has many files that share a name
   (`SKILL.md`, `CLAUDE.md`, `README.md`, …), so a basename is ambiguous and not
-  clickable. Write `.claude/skills/robot-review/SKILL.md:186`, **not** `SKILL.md:186`.
+  clickable. Write `.claude/skills/pancake-review/SKILL.md:186`, **not** `SKILL.md:186`.
   When the finding spans multiple lines (a block, a function, a multi-line statement),
   anchor to the **full span** as `path:start-end` (e.g. `config/airflow/foo.py:120-128`);
   use a single `path:line` only when the issue truly concerns one line. Use that same

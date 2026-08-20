@@ -1,9 +1,9 @@
 ---
-name: robot-review
-description: Stateless review of the current branch's changes vs its PR base — the preceding PR for a stack, otherwise the target branch — shown locally by default and posted only when asked. Use ONLY when the user explicitly asks for a "robot review" (the literal word "robot").
+name: pancake-review
+description: Stateless review of the current branch's changes vs its PR base — the preceding PR for a stack, otherwise the target branch — shown locally by default and posted only when asked. Use ONLY when the user explicitly asks for a "pancake review" (the literal word "pancake").
 ---
 
-# Robot Review
+# Pancake Review
 
 Stateless review of the current branch's changes against its PR base. For a stacked PR,
 that base is the preceding PR's branch; for an ordinary PR, it is the PR's target branch.
@@ -93,8 +93,8 @@ Local mode shows the review and stops — it never checks sync and never posts. 
 explicit post directive enables posting. There is no interactive "do you want to post?"
 prompt and no headless auto-post; the directive alone decides.
 
-**Already showed a review this conversation?** If you produced a robot-review locally earlier
-and the user is now just asking to post *that* one ("post it", "post that", "robot post"), do
+**Already showed a review this conversation?** If you produced a pancake-review locally earlier
+and the user is now just asking to post *that* one ("post it", "post that", "pancake post"), do
 **not** re-review — jump to **"Posting a review you already showed"** at the end of this
 file.
 
@@ -316,14 +316,14 @@ inline it as `--body "..."`, because the review contains backticks, `$`, and cod
 the shell would otherwise mangle:
 
 ```bash
-gh pr comment <N> --body-file - <<'ROBOT_REVIEW_EOF'
+gh pr comment <N> --body-file - <<'PANCAKE_REVIEW_EOF'
 <the full transformed review text>
 
-🤖 Generated with Codex (robot-review)
-ROBOT_REVIEW_EOF
+🤖 Generated with Codex (pancake-review)
+PANCAKE_REVIEW_EOF
 ```
 
-The quoted `'ROBOT_REVIEW_EOF'` delimiter keeps `$` and backticks literal; the delimiter is
+The quoted `'PANCAKE_REVIEW_EOF'` delimiter keeps `$` and backticks literal; the delimiter is
 deliberately unusual so a review body that happens to contain a bare `EOF` line can't
 terminate the heredoc early. The last line marks the comment as machine-generated.
 
@@ -332,8 +332,8 @@ terminate the heredoc early. The last line marks the comment as machine-generate
 
 ## Posting a review you already showed
 
-When you produced a robot-review locally earlier in this conversation and the user now asks
-to post it ("post it", "post that", "robot post"), **do not re-run the review.** Steps 2–5
+When you produced a pancake-review locally earlier in this conversation and the user now asks
+to post it ("post it", "post that", "pancake post"), **do not re-run the review.** Steps 2–5
 already ran; re-deriving could change the very findings the user just read and approved, so
 post exactly what they saw. Specifically:
 
@@ -346,5 +346,5 @@ post exactly what they saw. Specifically:
 3. **Precheck passes → do Step 6** on those existing findings: transform to permalinks and
    post the one top-level comment.
 
-Only fall back to a full fresh review if no robot-review has been shown yet in this
+Only fall back to a full fresh review if no pancake-review has been shown yet in this
 conversation, or the user explicitly asks for a new/updated one ("re-review and post").
