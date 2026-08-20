@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter, ui-rounded, "SF Pro Rounded", system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f4efe6;
+        color: #28231f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at 15% 10%, #fff7d6 0 10%, transparent 31%),
+          radial-gradient(circle at 88% 86%, #d9ede8 0 12%, transparent 34%),
+          #f4efe6;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .game {
+        width: min(92vw, 440px);
+        padding: 2.5rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(40, 35, 31, 0.1);
+        border-radius: 28px;
+        box-shadow: 0 22px 60px rgba(65, 48, 35, 0.15);
+        backdrop-filter: blur(12px);
+      }
+
+      .eyebrow {
+        margin: 0 0 0.35rem;
+        color: #9b583e;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 8vw, 3.1rem);
+        line-height: 1;
+        letter-spacing: -0.055em;
+      }
+
+      .legend {
+        margin: 0.8rem 0 1.7rem;
+        color: #736960;
+        font-size: 0.95rem;
+      }
+
+      .status {
+        min-height: 1.5em;
+        margin: 0 0 1rem;
+        font-weight: 750;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.65rem;
+        width: 100%;
+        aspect-ratio: 1;
+      }
+
+      .square {
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 18px;
+        background: #f0e9de;
+        color: #236a60;
+        cursor: pointer;
+        font-size: clamp(2.6rem, 14vw, 4.7rem);
+        font-weight: 850;
+        line-height: 1;
+        transition:
+          transform 120ms ease,
+          background 120ms ease,
+          box-shadow 120ms ease;
+      }
+
+      .square:not(:disabled):hover {
+        transform: translateY(-2px);
+        background: #e8dfd1;
+        box-shadow: 0 8px 16px rgba(65, 48, 35, 0.1);
+      }
+
+      .square:not(:disabled):focus-visible,
+      .restart:focus-visible {
+        outline: 3px solid #d17a56;
+        outline-offset: 3px;
+      }
+
+      .square.o {
+        color: #c75d42;
+      }
+
+      .square.winner {
+        background: #f5d889;
+        box-shadow: inset 0 0 0 3px rgba(155, 88, 62, 0.2);
+      }
+
+      .square:disabled {
+        cursor: default;
+      }
+
+      .restart {
+        width: 100%;
+        margin-top: 1.25rem;
+        padding: 0.85rem 1rem;
+        border: 0;
+        border-radius: 999px;
+        background: #28231f;
+        color: white;
+        cursor: pointer;
+        font-weight: 750;
+        transition:
+          transform 120ms ease,
+          background 120ms ease;
+      }
+
+      .restart:hover {
+        transform: translateY(-1px);
+        background: #4a4038;
+      }
+
+      @media (max-width: 480px) {
+        .game {
+          padding: 1.5rem;
+          border-radius: 22px;
+        }
+
+        .board {
+          gap: 0.5rem;
+        }
+
+        .square {
+          border-radius: 14px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="root"></main>
+
+    <script src="react.production.min.js"></script>
+    <script src="react-dom.production.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
