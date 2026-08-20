@@ -1,8 +1,11 @@
-const { useEffect, useState } = React;
+const { useEffect, useLayoutEffect, useRef, useState } = React;
 const h = React.createElement;
 
 const PLAYER = "X";
 const COMPUTER = "O";
+const MIN_VIEWPORT_WIDTH = 400;
+const MIN_VIEWPORT_HEIGHT = 300;
+const VIEWPORT_GUTTER = 32;
 const WINNING_LINES = [
   [0, 1, 2],
   [3, 4, 5],
@@ -75,7 +78,45 @@ function findBestMove(board) {
 function Game() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [turn, setTurn] = useState(PLAYER);
+  const [layout, setLayout] = useState({ height: 672, scale: 1, width: 440 });
+  const gameRef = useRef(null);
   const result = getResult(board);
+
+  useLayoutEffect(() => {
+    function fitGameToViewport() {
+      const game = gameRef.current;
+      if (!game) return;
+
+      const width = game.offsetWidth;
+      const height = game.offsetHeight;
+      const availableWidth =
+        Math.max(window.innerWidth, MIN_VIEWPORT_WIDTH) - VIEWPORT_GUTTER;
+      const availableHeight =
+        Math.max(window.innerHeight, MIN_VIEWPORT_HEIGHT) - VIEWPORT_GUTTER;
+      const scale = Math.min(
+        1,
+        availableWidth / width,
+        availableHeight / height,
+      );
+
+      setLayout((currentLayout) => {
+        if (
+          currentLayout.height === height &&
+          currentLayout.scale === scale &&
+          currentLayout.width === width
+        ) {
+          return currentLayout;
+        }
+
+        return { height, scale, width };
+      });
+    }
+
+    fitGameToViewport();
+    window.addEventListener("resize", fitGameToViewport);
+
+    return () => window.removeEventListener("resize", fitGameToViewport);
+  }, []);
 
   useEffect(() => {
     if (turn !== COMPUTER || result.winner) return undefined;
@@ -140,17 +181,32 @@ function Game() {
   });
 
   return h(
-    "section",
-    { className: "game" },
-    h("p", { className: "eyebrow" }, "You vs. computer"),
-    h("h1", null, "Tic Tac Toe"),
-    h("p", { className: "legend" }, "You are X. The computer is O."),
-    h("p", { "aria-live": "polite", className: "status" }, status),
-    h("div", { "aria-label": "Tic Tac Toe board", className: "board" }, squares),
+    "div",
+    {
+      className: "game-frame",
+      style: {
+        "--game-scale": layout.scale,
+        height: `${layout.height * layout.scale}px`,
+        width: `${layout.width * layout.scale}px`,
+      },
+    },
     h(
-      "button",
-      { className: "restart", onClick: restart, type: "button" },
-      "Start over",
+      "section",
+      { className: "game", ref: gameRef },
+      h("p", { className: "eyebrow" }, "You vs. computer"),
+      h("h1", null, "Tic Tac Toe"),
+      h("p", { className: "legend" }, "You are X. The computer is O."),
+      h("p", { "aria-live": "polite", className: "status" }, status),
+      h(
+        "div",
+        { "aria-label": "Tic Tac Toe board", className: "board" },
+        squares,
+      ),
+      h(
+        "button",
+        { className: "restart", onClick: restart, type: "button" },
+        "Start over",
+      ),
     ),
   );
 }
