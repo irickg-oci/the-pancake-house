@@ -246,11 +246,6 @@ function Game() {
           "div",
           { className: "dopamine-header" },
           h("label", { htmlFor: "dopamine" }, "Dopamine"),
-          h(
-            "output",
-            { htmlFor: "dopamine", id: "dopamine-value" },
-            `${dopamine} · ${dopamine * 20}% mistakes`,
-          ),
         ),
         h(
           "div",
@@ -261,7 +256,6 @@ function Game() {
             "☹️",
           ),
           h("input", {
-            "aria-describedby": "dopamine-value",
             "aria-valuetext": `Level ${dopamine}, ${dopamine * 20}% mistake chance`,
             id: "dopamine",
             max: 5,
