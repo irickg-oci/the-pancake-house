@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tic Tac Toe</title>
+    <title>Pancake Wars</title>
+    <link rel="preload" href="assets/blueberry-pancakes.png" as="image" />
+    <link rel="preload" href="assets/butter-pancakes.png" as="image" />
     <style>
       :root {
         color-scheme: light;
@@ -19,8 +21,8 @@
       }
 
       body {
-        min-width: 320px;
-        min-height: 100vh;
+        min-width: 400px;
+        min-height: max(300px, 100vh);
         margin: 0;
         display: grid;
         place-items: center;
@@ -30,12 +32,16 @@
           #f4efe6;
       }
 
+      .game-frame {
+        flex: none;
+      }
+
       button {
         font: inherit;
       }
 
       .game {
-        width: min(92vw, 440px);
+        width: 440px;
         padding: 2.5rem;
         text-align: center;
         background: rgba(255, 255, 255, 0.88);
@@ -43,6 +49,8 @@
         border-radius: 28px;
         box-shadow: 0 22px 60px rgba(65, 48, 35, 0.15);
         backdrop-filter: blur(12px);
+        transform: scale(var(--game-scale));
+        transform-origin: top left;
       }
 
       .eyebrow {
@@ -56,7 +64,7 @@
 
       h1 {
         margin: 0;
-        font-size: clamp(2rem, 8vw, 3.1rem);
+        font-size: 3.1rem;
         line-height: 1;
         letter-spacing: -0.055em;
       }
@@ -76,6 +84,7 @@
       .board {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
         gap: 0.65rem;
         width: 100%;
         aspect-ratio: 1;
@@ -84,14 +93,13 @@
       .square {
         display: grid;
         place-items: center;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
         border: 0;
         border-radius: 18px;
         background: #f0e9de;
-        color: #236a60;
         cursor: pointer;
-        font-size: clamp(2.6rem, 14vw, 4.7rem);
-        font-weight: 850;
-        line-height: 1;
         transition:
           transform 120ms ease,
           background 120ms ease,
@@ -110,8 +118,16 @@
         outline-offset: 3px;
       }
 
-      .square.o {
-        color: #c75d42;
+      .piece {
+        display: block;
+        width: 88%;
+        height: 88%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 2px rgba(65, 48, 35, 0.14));
       }
 
       .square.winner {
@@ -141,21 +157,6 @@
       .restart:hover {
         transform: translateY(-1px);
         background: #4a4038;
-      }
-
-      @media (max-width: 480px) {
-        .game {
-          padding: 1.5rem;
-          border-radius: 22px;
-        }
-
-        .board {
-          gap: 0.5rem;
-        }
-
-        .square {
-          border-radius: 14px;
-        }
       }
 
       @media (prefers-reduced-motion: reduce) {
