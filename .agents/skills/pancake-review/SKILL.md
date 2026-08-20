@@ -1,6 +1,6 @@
 ---
 name: pancake-review
-description: Stateless review of the current branch's changes vs its PR base — the preceding PR for a stack, otherwise the target branch — shown locally by default and posted only when asked. Use ONLY when the user explicitly asks for a "pancake review" (the literal word "pancake").
+description: Stateless review of the current branch's changes vs a user-confirmed PR base — the preceding PR for a stack, otherwise the target branch — shown locally by default and posted only when asked. Use ONLY when the user explicitly asks for a "pancake review" (the literal word "pancake").
 ---
 
 # Pancake Review
@@ -25,9 +25,16 @@ read comment context (best-effort), and post.
   before anything else and stops if not — without it we can't tell whether a PR exists,
   or resolve that PR's base, which we need for review scope, comment context, and posting.
   (The review content itself is still pure-git.)
-- **PR metadata determines scope.** A current PR's `baseRefName` is authoritative. A
-  definitive "no PR" result falls back to `main` for a local branch; any other lookup
-  failure stops rather than silently reviewing the wrong range.
+- **PR metadata proposes scope; the user confirms it.** A current PR's `baseRefName` is
+  the proposed comparison branch. A definitive "no PR" result proposes `main` for a local
+  branch; any other lookup failure stops rather than silently reviewing the wrong range.
+  The user's explicit correction may override the proposal for a local review. A posted
+  review must still match the PR's current `baseRefName`.
+- **The user always confirms the comparison branch.** After resolving the proposed base
+  and the exact local or remote-tracking ref, report both to the user and stop for explicit
+  confirmation. Do not inspect the diff, commits, changed files, or PR comments until the
+  user confirms. This gate applies even when the PR metadata looks unambiguous; it protects
+  stacked reviews from silently using the wrong layer.
 - **PR comments are best-effort context.** If a PR exists, its comments are folded in so
   the review respects maintainer decisions. A comment-read failure never aborts the review.
 - **Local by default; posting is opt-in and gated up front.** With no directive (or
@@ -51,13 +58,14 @@ read comment context (best-effort), and post.
 
 ## Output discipline
 
-Steps 0–4 are **silent setup** — do not narrate the preflight, the posting precheck, which
-mode you're in, what commands returned, that you read PR comments, or how you assembled the
-diff. The only thing you print is the review itself (Step 5). The two exceptions are terse
-stops: a preflight failure (Step 0) and a posting-precheck failure (Step 1). A successful
-preflight or precheck says nothing. State the scope you reviewed inside the Overall Summary,
-not as a preamble. Never frame the run as a first/second/delta review, never tally prior
-findings, never note whether the current state matches a prior review.
+Setup is silent except for the mandatory comparison-branch confirmation in Step 2. Do not
+narrate the preflight, the posting precheck, which mode you're in, what commands returned,
+that you read PR comments, or how you assembled the diff. Apart from that confirmation, the
+only thing you print is the review itself (Step 5). The other exceptions are terse stops for
+a preflight failure (Step 0) or posting-precheck failure (Step 1). A successful preflight or
+precheck says nothing. State the confirmed scope inside the Overall Summary, not as a
+preamble. Never frame the run as a first/second/delta review, never tally prior findings,
+never note whether the current state matches a prior review.
 
 **File references — always full repo-relative paths.** Every time you name a file — in a
 finding, in the Overall Summary, in any closing message — use the full path from the repo
@@ -172,8 +180,32 @@ The Context block above already resolved the current branch. If it reported
   If neither ref exists, stop: "PR base `<baseRefName>` is unavailable locally —
   `git fetch origin <baseRefName>:refs/remotes/origin/<baseRefName>`, then re-run."
 
-Call the selected local or remote-tracking ref `<comparison-ref>`. Together these commands
-cover everything the current PR layer introduces, committed and uncommitted:
+Call the selected local or remote-tracking ref `<comparison-ref>`.
+
+**Mandatory confirmation gate — always stop here before reviewing.** Tell the user:
+
+> I found `<baseRefName>` as the comparison branch for `<current-branch>` from
+> `<PR metadata|the no-PR fallback>`, using `<comparison-ref>`. Is that correct?
+
+Do not run a diff, inspect commits or changed files, read PR comments, or perform any review
+work until the user explicitly confirms. An earlier confirmation applies only to this review
+of the same current branch against the same resolved base. When the user confirms, re-check
+the current branch and PR `baseRefName`; if either changed while waiting, report the newly
+resolved comparison branch/ref and ask again.
+
+If the user rejects the proposed branch:
+
+- If they name the intended branch, verify its local ref and then its `origin/` ref using the
+  same `git show-ref` checks above. Their explicit choice confirms that branch; use the
+  available ref as `<comparison-ref>`.
+- If they do not name the intended branch, ask which branch to use and stop.
+- In post mode, if their confirmed branch differs from the PR's current `baseRefName`, stop:
+  "PR base is `<baseRefName>`, but the confirmed comparison branch is `<confirmed-branch>`
+  — update the PR base or run locally, then re-run." Never post a review whose comparison
+  branch differs from the PR base.
+
+After confirmation, these commands cover everything the current PR layer introduces,
+committed and uncommitted:
 
 ```bash
 git diff <comparison-ref>...HEAD              # committed changes (merge-base diff = the PR layer)
@@ -337,13 +369,17 @@ to post it ("post it", "post that", "pancake post"), **do not re-run the review.
 already ran; re-deriving could change the very findings the user just read and approved, so
 post exactly what they saw. Specifically:
 
-1. **Reuse the exact findings already shown** in this conversation — same buckets, same
+1. **Verify that the comparison branch used for that review was explicitly confirmed.** If
+   it was not, resolve and ask for confirmation using the Step 2 gate before doing the
+   posting precheck. If the user rejects it, the displayed review has the wrong scope; do
+   not post it. Tell them a fresh pancake review against the corrected branch is required.
+2. **Reuse the exact findings already shown** in this conversation — same buckets, same
    anchors, same text. Do not regenerate them.
-2. **Run the Step 1 posting precheck now** (local mode skipped it): a PR exists,
+3. **Run the Step 1 posting precheck now** (local mode skipped it): a PR exists,
    `git fetch origin`, clean tree, in-sync with upstream, and the fetched PR base is
    available. If any check
    fails, stop with the same one-line message from Step 1 — do not post.
-3. **Precheck passes → do Step 6** on those existing findings: transform to permalinks and
+4. **Precheck passes → do Step 6** on those existing findings: transform to permalinks and
    post the one top-level comment.
 
 Only fall back to a full fresh review if no pancake-review has been shown yet in this
